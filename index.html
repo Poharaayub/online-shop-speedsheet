@@ -2,138 +2,20 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<title>Toko Online</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Online Store</title>
-<style>
-  body {
-    font-family:'Segoe UI',sans-serif;
-    background:#f4f4f8;
-    padding:20px;
-  }
-  header h1 {
-    text-align:center;
-    color:#009688;
-  }
-  #search {
-    width:100%;
-    padding:10px;
-    margin-top:20px;
-    border-radius:8px;
-    border:1px solid #ccc;
-    font-size:16px;
-  }
-  .products-grid {
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
-    gap:20px;
-    margin-top:20px;
-  }
-  .product-card {
-    background:#fff;
-    border-radius:12px;
-    padding:10px;
-    box-shadow:0 4px 8px rgba(0,0,0,0.1);
-    text-align:center;
-    transition:transform 0.2s;
-  }
-  .product-card:hover {
-    transform:translateY(-5px);
-  }
-  .product-card img {
-    width:100%;
-    border-radius:8px;
-    object-fit:cover;
-  }
-  .product-card h3 {
-    margin:10px 0 5px 0;
-    font-size:16px;
-  }
-  .product-card p {
-    margin:5px 0;
-    font-size:14px;
-  }
-  button {
-    margin-top:8px;
-    background:#009688;
-    color:#fff;
-    border:none;
-    padding:8px 12px;
-    border-radius:6px;
-    cursor:pointer;
-    font-size:14px;
-  }
-  button:hover {
-    background:#00796b;
-  }
-</style>
+
+<!-- Link CSS eksternal -->
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-  <h1>My Online Store</h1>
-</header>
+<h1>Toko Online</h1>
 
-<input type="text" id="search" placeholder="Cari produk..." oninput="filterProducts()">
-<div id="products" class="products-grid"></div>
+<!-- Container Produk -->
+<div id="products">Memuat produk...</div>
 
-<!-- PapaParse untuk membaca CSV Google Sheets -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-<script>
-let allProducts = [];
-
-function init() {
-  const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRscIuXHf9Y7IOsBAwR5kzo_1PQPSNHIHPpKdpSs3ffVzxg01dAPt4KuqhEDhkt47xbzz5ECK-4KgPB/pub?output=csv';
-
-  Papa.parse(sheetUrl, {
-    download: true,
-    header: true,
-    complete: function(results) {
-      // simpan data yang ada nama produk
-      allProducts = results.data.filter(p => p.Nama && p.Nama.trim() !== "");
-      displayProducts(allProducts);
-    }
-  });
-}
-
-function displayProducts(products) {
-  let html = '';
-  products.forEach(product => {
-    // pastikan field terisi
-    const img = product.LinkGambar || '';
-    const name = product.Nama || '';
-    const desc = product.Deskripsi || '';
-    const price = product.Harga || '';
-
-    html += `
-      <div class="product-card">
-        <img src="${img}" alt="${name}">
-        <h3>${name}</h3>
-        <p>${desc}</p>
-        <p>Rp ${price}</p>
-        <button onclick="buy('${encodeURIComponent(name)}','${encodeURIComponent(price)}')">Beli</button>
-      </div>
-    `;
-  });
-  document.getElementById('products').innerHTML = html;
-}
-
-function buy(name, price) {
-  // contoh: ganti link pembayaran sesuai kebutuhan
-  const danaLink = "https://link-dana.com/bayar?amount=" + decodeURIComponent(price);
-  window.open(danaLink, "_blank");
-}
-
-function filterProducts() {
-  const term = document.getElementById('search').value.toLowerCase();
-  const filtered = allProducts.filter(p =>
-    p.Nama && p.Nama.toLowerCase().includes(term)
-  );
-  displayProducts(filtered);
-}
-
-// jalankan saat halaman terbuka
-window.onload = init;
-</script>
-
+<!-- Link JS eksternal -->
+<script src="script.js"></script>
 </body>
 </html>
