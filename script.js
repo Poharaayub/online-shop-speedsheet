@@ -1,43 +1,39 @@
-// Link spreadsheet publish
-const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRscIuXHf9Y7IOsBAwR5kzo_1PQPSNHIHPpKdpSs3ffVzxg01dAPt4KuqhEDhkt47xbzz5ECK-4KgPB/pubhtml";
+const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRscIuXHf9Y7IOsBAwR5kzo_1PQPSNHIHPpKdpSs3ffVzxg01dAPt4KuqhEDhkt47xbzz5ECK-4KgPB/pub?gid=0&single=true&output=csv";
 
-// Fetch HTML dari Google Spreadsheet
-fetch(sheetUrl)
-.then(res => res.text())
-.then(html => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-
-    // Ambil semua baris di table
-    const rows = doc.querySelectorAll("table tbody tr");
+Papa.parse(csvUrl, {
+  download: true,
+  header: true,
+  complete: function(results) {
+    const data = results.data;
     const container = document.getElementById("products");
-    container.innerHTML = ""; // kosongkan dulu teks "memuat"
+    container.innerHTML = "";
 
-    rows.forEach(row => {
-        const cols = row.querySelectorAll("td");
-        if(cols.length >= 7) {
+    if (!data || data.length === 0) {
+      container.innerText = "Belum ada data CSV atau spreadsheet belum publish.";
+      return;
+    }
 
-            const id = cols[0].innerText.trim();
-            const nama = cols[1].innerText.trim();
-            const kategori = cols[2].innerText.trim();
-            const harga = cols[3].innerText.trim();
-            const deskripsi = cols[4].innerText.trim();
-            const gambar = cols[5].innerText.trim();
-            const link = cols[6].innerText.trim();
+    data.forEach(row => {
+      // Pastikan header tepat
+      const nama = row["Nama Produk"] || "";
+      const deskripsi = row["Deskripsi"] || "";
+      const harga = row["Harga"] || "";
+      const gambar = row["Gambar"] || "";
+      const link = row["Link Pembelian"] || "";
 
-            container.innerHTML += `
-                <div class="product">
-                    <img src="${gambar}" alt="${nama}">
-                    <h3>${nama}</h3>
-                    <p>${deskripsi}</p>
-                    <p><strong>Rp${harga}</strong></p>
-                    <button onclick="window.open('${link}','_blank')">Beli Sekarang</button>
-                </div>
-            `;
-        }
+      container.innerHTML += `
+        <div class="product">
+          <img src="${gambar}" alt="${nama}">
+          <h3>${nama}</h3>
+          <p>${deskripsi}</p>
+          <p><strong>Rp${harga}</strong></p>
+          <button onclick="window.open('${link}','_blank')">Beli Sekarang</button>
+        </div>
+      `;
     });
-})
-.catch(err => {
-    document.getElementById("products").innerText = "Terjadi kesalahan saat memuat data.";
+  },
+  error: function(err) {
+    document.getElementById("products").innerText = "Gagal memuat CSV.";
     console.error(err);
+  }
 });
